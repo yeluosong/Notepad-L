@@ -32,6 +32,9 @@ add_compile_definitions(
 if(MSVC)
     add_compile_options(/W4 /permissive- /utf-8 /EHsc /MP /Zc:__cplusplus)
     add_link_options(/MANIFEST:NO /SUBSYSTEM:WINDOWS,6.01)
+    # Static-link the CRT so Win7 doesn't need VCRUNTIME/MSVCP DLLs and avoids
+    # the DLL-load-order crash in mtx_do_lock where CRITICAL_SECTION is NULL.
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 # --- Third-party: Scintilla + Lexilla (git submodules) ------------------------

@@ -72,7 +72,20 @@ void ScintillaEditView::ApplyDefaultStyle()
 
     // DirectWrite gives consistent sub-pixel metrics — important so the
     // GB2312 fallback below renders with stable widths for column selects.
-    Call(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITERETAIN);
+    // DirectWrite requires Win7 Platform Update (KB2670838) or Win8+;
+    // fall back to GDI if SetTechnology fails (returns 0 on unsupported OS).
+    {
+        OSVERSIONINFOW ovi{};
+        ovi.dwOSVersionInfoSize = sizeof(ovi);
+        #pragma warning(suppress: 4996) // GetVersionExW deprecated but works on Win7
+        ::GetVersionExW(&ovi);
+        if (ovi.dwMajorVersion > 6 ||
+            (ovi.dwMajorVersion == 6 && ovi.dwMinorVersion >= 2)) {
+            // Win8+ — DirectWrite always available
+            Call(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITERETAIN);
+        }
+        // Win7: stay with default GDI to avoid Platform Update dependency
+    }
 
     // Default style: Consolas 10 pt with a GB2312 charset hint.
     // The charset hint pushes Windows' CJK glyph fallback from the *proportional*
