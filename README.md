@@ -5,7 +5,8 @@ A lightweight text editor for Windows, built with Win32 + Scintilla + Lexilla.
 > **Declaration**
 > This entire project — including all source code, CMake build system, resource files,
 > and documentation — was created by **Claude Code (Anthropic Claude Opus 4.6)**.
-> Human involvement was limited to providing requirements and reviewing output.
+> Human involvement was limited to providing requirements.
+> **No manual code review has been performed on any of the source code.**
 
 Status: **M1 skeleton** — main frame, single Scintilla view, new/open/save/save-as/close,
 recent files, status bar, accelerators, UTF-8 + CRLF defaults.
