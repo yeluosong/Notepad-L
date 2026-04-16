@@ -6,3 +6,13 @@ out/
 CMakeCache.txt
 CMakeFiles/
 cmake-build-*/
+
+# Build artifacts
+*.msi
+*.exe
+*.dll
+*.obj
+*.pdb
+*.lib
+*.exp
+*.ilk

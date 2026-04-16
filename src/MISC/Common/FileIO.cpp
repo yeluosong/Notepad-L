@@ -32,7 +32,7 @@ bool ReadFileAll(const std::wstring& path, std::vector<char>& out)
 
 bool WriteFileAtomic(const std::wstring& path, const char* data, size_t size)
 {
-    std::wstring tmp = path + L".npp.tmp";
+    std::wstring tmp = path + L".npl.tmp";
     HANDLE h = ::CreateFileW(tmp.c_str(), GENERIC_WRITE, 0,
         nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (h == INVALID_HANDLE_VALUE) return false;

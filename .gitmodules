@@ -1,9 +1,6 @@
 [submodule "scintilla"]
 	path = scintilla
-	url = https://github.com/ScintillaOrg/lexilla.git
-    # NOTE: Replace with the Scintilla mirror you prefer.
-    # Official tarballs live at https://www.scintilla.org/ScintillaDownload.html
-    # A convenient git mirror: https://github.com/mirror/scintilla
+	url = https://github.com/ScintillaOrg/scintilla.git
 [submodule "lexilla"]
 	path = lexilla
 	url = https://github.com/ScintillaOrg/lexilla.git

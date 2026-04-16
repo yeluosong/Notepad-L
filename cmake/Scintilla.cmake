@@ -20,7 +20,7 @@ target_include_directories(scintilla PUBLIC
 target_compile_definitions(scintilla PRIVATE
     SCI_LEXER=0
     STATIC_BUILD
-    _WIN32_WINNT=0x0A00)
+    _WIN32_WINNT=0x0601)
 
 if(MSVC)
     target_compile_options(scintilla PRIVATE /wd4244 /wd4267 /wd4456 /wd4458)

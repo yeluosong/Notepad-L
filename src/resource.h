@@ -1,6 +1,6 @@
 #pragma once
 
-#define IDI_NOTEPADPP               101
+#define IDI_NOTEPADL                101
 #define IDR_MAIN_MENU               102
 #define IDR_MAIN_ACCEL              103
 #define IDR_TAB_CONTEXT             104

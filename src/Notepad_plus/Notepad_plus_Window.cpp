@@ -397,7 +397,7 @@ bool Notepad_plus_Window::Init(HINSTANCE hInst, int nCmdShow)
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
     wc.lpfnWndProc   = &Notepad_plus_Window::StaticWndProc;
     wc.hInstance     = hInst;
-    wc.hIcon         = ::LoadIconW(hInst, MAKEINTRESOURCEW(IDI_NOTEPADPP));
+    wc.hIcon         = ::LoadIconW(hInst, MAKEINTRESOURCEW(IDI_NOTEPADL));
     if (!wc.hIcon) wc.hIcon = ::LoadIconW(nullptr, IDI_APPLICATION);
     wc.hIconSm       = wc.hIcon;
     wc.hCursor       = ::LoadCursorW(nullptr, IDC_ARROW);
