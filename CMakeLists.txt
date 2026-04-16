@@ -23,11 +23,15 @@ add_compile_definitions(
     WIN32_LEAN_AND_MEAN
     NOMINMAX
     _CRT_SECURE_NO_WARNINGS
+    # Target Windows 7 as minimum supported OS
+    WINVER=0x0601
+    _WIN32_WINNT=0x0601
+    NTDDI_VERSION=0x06010000
 )
 
 if(MSVC)
     add_compile_options(/W4 /permissive- /utf-8 /EHsc /MP /Zc:__cplusplus)
-    add_link_options(/MANIFEST:NO)
+    add_link_options(/MANIFEST:NO /SUBSYSTEM:WINDOWS,6.01)
 endif()
 
 # --- Third-party: Scintilla + Lexilla (git submodules) ------------------------
