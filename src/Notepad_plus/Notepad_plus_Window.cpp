@@ -24,7 +24,7 @@
 
 namespace npp {
 
-static constexpr wchar_t kClassName[] = L"NotepadPP_MainFrame";
+static constexpr wchar_t kClassName[] = L"NotePadL_MainFrame";
 
 const wchar_t* Notepad_plus_Window::ClassName() { return kClassName; }
 
@@ -411,7 +411,7 @@ bool Notepad_plus_Window::Init(HINSTANCE hInst, int nCmdShow)
     Parameters::Instance().Load();
 
     hwnd_ = ::CreateWindowExW(
-        0, kClassName, L"Notepad++",
+        0, kClassName, L"NotePad-L",
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
         CW_USEDEFAULT, CW_USEDEFAULT, 1100, 750,
         nullptr, menu_, hInst, this);
@@ -1409,10 +1409,10 @@ LRESULT Notepad_plus_Window::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
             break;
         case IDM_HELP_ABOUT:
             ::MessageBoxW(h,
-                L"Notepad++ 0.6\n"
+                L"NotePad-L 0.6\n"
                 L"A Scintilla-based multi-tab editor.\n"
-                L"Mascot: a very small squirrel.",
-                L"About Notepad++", MB_OK | MB_ICONINFORMATION);
+                L"Created by Claude Code (Anthropic Claude Opus 4.6).",
+                L"About NotePad-L", MB_OK | MB_ICONINFORMATION);
             break;
         case IDM_SEARCH_FIND:     app_.ShowFind(h, hInst_); break;
         case IDM_SEARCH_REPLACE:  app_.ShowReplace(h, hInst_); break;

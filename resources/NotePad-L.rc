@@ -134,7 +134,7 @@ BEGIN
     END
     POPUP "&?"
     BEGIN
-        MENUITEM "&About Notepad++...",       IDM_HELP_ABOUT
+        MENUITEM "&About NotePad-L...",       IDM_HELP_ABOUT
     END
 END
 
@@ -259,12 +259,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName",     "Notepad++"
-            VALUE "FileDescription", "Notepad++ editor"
+            VALUE "CompanyName",     "NotePad-L"
+            VALUE "FileDescription", "NotePad-L editor"
             VALUE "FileVersion",     "0.6.0.0"
-            VALUE "InternalName",    "Notepad++"
-            VALUE "OriginalFilename","notepad++.exe"
-            VALUE "ProductName",     "Notepad++"
+            VALUE "InternalName",    "NotePad-L"
+            VALUE "OriginalFilename","notepad-l.exe"
+            VALUE "ProductName",     "NotePad-L"
             VALUE "ProductVersion",  "0.3.0.0"
         END
     END

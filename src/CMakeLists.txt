@@ -51,21 +51,21 @@ set(NPP_HEADERS
 )
 
 set(NPP_RESOURCES
-    ../resources/Notepad++.rc
+    ../resources/NotePad-L.rc
 )
 
-add_executable(notepadpp WIN32
+add_executable(notepadl WIN32
     ${NPP_SOURCES}
     ${NPP_HEADERS}
     ${NPP_RESOURCES})
 
-target_include_directories(notepadpp PRIVATE
+target_include_directories(notepadl PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_SOURCE_DIR}/resources
 )
 
-target_link_libraries(notepadpp PRIVATE
+target_link_libraries(notepadl PRIVATE
     scintilla
     lexilla
     comctl32
@@ -82,12 +82,12 @@ target_link_libraries(notepadpp PRIVATE
     dwmapi
 )
 
-set_target_properties(notepadpp PROPERTIES
-    OUTPUT_NAME "notepad++"
+set_target_properties(notepadl PROPERTIES
+    OUTPUT_NAME "notepad-l"
     VS_DPI_AWARE "PerMonitor")
 
 # Manifest (common controls v6 + DPI awareness)
-target_sources(notepadpp PRIVATE ../resources/Notepad++.manifest)
+target_sources(notepadl PRIVATE ../resources/NotePad-L.manifest)
 
 # --- Install rules ----------------------------------------------------------
-install(TARGETS notepadpp RUNTIME DESTINATION .)
+install(TARGETS notepadl RUNTIME DESTINATION .)

@@ -178,7 +178,7 @@ void Notepad_plus::Layout(const RECT& client, int statusBarHeight)
 void Notepad_plus::UpdateTitle(HWND frame)
 {
     Buffer* b = BufferManager::Instance().Get(V().activeId);
-    std::wstring title = L"Notepad++ - ";
+    std::wstring title = L"NotePad-L - ";
     if (!b) {
         title += L"(no document)";
     } else {
@@ -374,7 +374,7 @@ BufferID Notepad_plus::DoOpen(const std::wstring& path)
     std::wstring err;
     BufferID id = BufferManager::Instance().OpenFile(path, &err);
     if (id == kInvalidBufferID) {
-        ::MessageBoxW(nullptr, err.c_str(), L"Notepad++",
+        ::MessageBoxW(nullptr, err.c_str(), L"NotePad-L",
             MB_OK | MB_ICONERROR);
         return id;
     }
@@ -463,7 +463,7 @@ bool Notepad_plus::DoSave(HWND parent, BufferID id)
         IsInBinaryMode(id) && id == ActiveBuffer());
     std::wstring err;
     if (!BufferManager::Instance().SaveBuffer(id, &err)) {
-        ::MessageBoxW(parent, err.c_str(), L"Notepad++", MB_OK | MB_ICONERROR);
+        ::MessageBoxW(parent, err.c_str(), L"NotePad-L", MB_OK | MB_ICONERROR);
         return false;
     }
     SyncTabLabel(id);
@@ -497,7 +497,7 @@ bool Notepad_plus::DoSaveAs(HWND parent, BufferID id)
         IsInBinaryMode(id) && id == ActiveBuffer());
     std::wstring err;
     if (!BufferManager::Instance().SaveBufferAs(id, buf, &err)) {
-        ::MessageBoxW(parent, err.c_str(), L"Notepad++", MB_OK | MB_ICONERROR);
+        ::MessageBoxW(parent, err.c_str(), L"NotePad-L", MB_OK | MB_ICONERROR);
         return false;
     }
     SyncTabLabel(id);
@@ -531,7 +531,7 @@ bool Notepad_plus::PromptDirtySave(HWND parent, BufferID id)
     std::wstring msg = L"Save changes to ";
     msg += b->DisplayName();
     msg += L"?";
-    int r = ::MessageBoxW(parent, msg.c_str(), L"Notepad++",
+    int r = ::MessageBoxW(parent, msg.c_str(), L"NotePad-L",
         MB_YESNOCANCEL | MB_ICONQUESTION);
     if (r == IDCANCEL) return false;
     if (r == IDYES)    return DoSave(parent, id);
@@ -1020,7 +1020,7 @@ void Notepad_plus::RunFindInFiles(const FindInFilesParams& p)
 // ---------------- M5: dual-view ----------------
 
 namespace {
-    constexpr wchar_t kSplitterCls[] = L"NotepadPPVSplitter";
+    constexpr wchar_t kSplitterCls[] = L"NotePadLVSplitter";
 
     LRESULT CALLBACK SplitterProc(HWND h, UINT m, WPARAM w, LPARAM l)
     {

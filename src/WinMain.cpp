@@ -66,7 +66,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInst,
 
     // Per-user named mutex: single instance within the logged-in session, so
     // multiple users on the same machine each get their own instance.
-    HANDLE mutex = ::CreateMutexW(nullptr, FALSE, L"Local\\NotepadPP.SingleInstance.v1");
+    HANDLE mutex = ::CreateMutexW(nullptr, FALSE, L"Local\\NotePadL.SingleInstance.v1");
     const bool alreadyRunning = (::GetLastError() == ERROR_ALREADY_EXISTS);
     if (alreadyRunning) {
         if (ForwardToExistingInstance(files)) {
@@ -82,7 +82,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInst,
     frame.SetInitialFiles(std::move(files));
     if (!frame.Init(hInst, nCmdShow)) {
         ::MessageBoxW(nullptr, L"Failed to create main window.",
-            L"Notepad++", MB_OK | MB_ICONERROR);
+            L"NotePad-L", MB_OK | MB_ICONERROR);
         if (mutex) ::CloseHandle(mutex);
         return 1;
     }

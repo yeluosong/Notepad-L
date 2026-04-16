@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
-project("Notepad++"
+project("NotePad-L"
     VERSION 0.1.0
-    DESCRIPTION "Notepad++ (Win32 + Scintilla)"
+    DESCRIPTION "NotePad-L (Win32 + Scintilla)"
     LANGUAGES CXX)
 
 if(NOT WIN32)
-    message(FATAL_ERROR "Notepad++ targets Windows only.")
+    message(FATAL_ERROR "NotePad-L targets Windows only.")
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
@@ -57,14 +57,14 @@ include("${CMAKE_SOURCE_DIR}/cmake/Lexilla.cmake")
 add_subdirectory(src)
 
 # --- Installer (CPack + WiX) -------------------------------------------------
-set(CPACK_PACKAGE_NAME               "Notepad++")
-set(CPACK_PACKAGE_VENDOR             "Notepad++ Project")
+set(CPACK_PACKAGE_NAME               "NotePad-L")
+set(CPACK_PACKAGE_VENDOR             "NotePad-L Project")
 set(CPACK_PACKAGE_VERSION            "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-    "Notepad++ — a text editor built on Scintilla/Lexilla")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY  "Notepad++")
+    "NotePad-L — a text editor built on Scintilla/Lexilla")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY  "NotePad-L")
 set(CPACK_PACKAGE_FILE_NAME
-    "Notepad++-${PROJECT_VERSION}-win64")
+    "NotePad-L-${PROJECT_VERSION}-win64")
 set(CPACK_RESOURCE_FILE_LICENSE
     "${CMAKE_SOURCE_DIR}/resources/installer/License.rtf")
 
@@ -73,9 +73,9 @@ set(CPACK_GENERATOR "WIX")
 set(CPACK_WIX_UPGRADE_GUID "6B9A3C2E-4F1D-4A1E-9C3A-1B0E9B2A7C01")
 set(CPACK_WIX_PRODUCT_ICON
     "${CMAKE_SOURCE_DIR}/resources/icons/app.ico")
-set(CPACK_WIX_PROGRAM_MENU_FOLDER "Notepad++")
-set(CPACK_PACKAGE_EXECUTABLES "notepad++" "Notepad++")
-set(CPACK_CREATE_DESKTOP_LINKS "notepad++")
+set(CPACK_WIX_PROGRAM_MENU_FOLDER "NotePad-L")
+set(CPACK_PACKAGE_EXECUTABLES "notepad-l" "NotePad-L")
+set(CPACK_CREATE_DESKTOP_LINKS "notepad-l")
 set(CPACK_WIX_ROOT "${CMAKE_SOURCE_DIR}/tools/wix")
 
 include(CPack)

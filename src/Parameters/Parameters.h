@@ -16,7 +16,7 @@ public:
     void AddRecent(const std::wstring& path);
     void ClearRecent();
 
-    // Load/save settings from %APPDATA%\Notepad++\config.xml
+    // Load/save settings from %APPDATA%\NotePad-L\config.xml
     // M1 uses a trivial text format; replaced by TinyXML-2 in M2.
     void Load();
     void Save() const;

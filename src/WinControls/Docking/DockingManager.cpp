@@ -10,8 +10,8 @@ constexpr int kTitleH    = 22;
 constexpr int kSplitW    = 4;
 constexpr int kCloseSize = 14;
 
-const wchar_t kTitleClass[]    = L"NotepadPP_DockTitle";
-const wchar_t kSplitterClass[] = L"NotepadPP_DockSplit";
+const wchar_t kTitleClass[]    = L"NotePadL_DockTitle";
+const wchar_t kSplitterClass[] = L"NotePadL_DockSplit";
 
 bool g_classesRegistered = false;
 

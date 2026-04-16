@@ -22,7 +22,7 @@ std::wstring Parameters::ConfigDir() const
     if (SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &appdata))) {
         dir = appdata;
         ::CoTaskMemFree(appdata);
-        dir += L"\\Notepad++";
+        dir += L"\\NotePad-L";
         ::CreateDirectoryW(dir.c_str(), nullptr);
     }
     return dir;
