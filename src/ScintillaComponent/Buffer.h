@@ -55,6 +55,12 @@ public:
     LangType GetLang() const            { return lang_; }
     void     SetLang(LangType l)        { lang_ = l; }
 
+    // Set by SCN_MODIFIED on user edits; the frame's debounce timer runs
+    // the whole-document identifier / fence pass only when typing pauses.
+    // Also re-runs on activation if we switched away before the timer fired.
+    bool StyleDirty() const         { return styleDirty_; }
+    void SetStyleDirty(bool d)      { styleDirty_ = d; }
+
     // Cached view state (updated on deactivate, restored on activate).
     struct ViewState {
         sptr_t firstVisibleLine = 0;
@@ -72,6 +78,7 @@ private:
     bool            untitled_;
     int             untitledIndex_; // 1-based "new N"
     bool            dirty_ = false;
+    bool            styleDirty_ = false;
     FILETIME        lastWrite_{};
     ViewState       view_{};
     Encoding        encoding_ = Encoding::Utf8;

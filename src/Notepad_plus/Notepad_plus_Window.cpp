@@ -1358,6 +1358,14 @@ LRESULT Notepad_plus_Window::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
         app_.Editor().SetFocus();
         return 0;
 
+    case WM_TIMER:
+        if (w == kStyleDebounceTimerId) {
+            ::KillTimer(h, kStyleDebounceTimerId);
+            FlushPendingStyle();
+            return 0;
+        }
+        break;
+
     case WM_ERASEBKGND: {
         const UiPalette& u = Ui();
         HDC hdc = reinterpret_cast<HDC>(w);
@@ -1550,14 +1558,14 @@ LRESULT Notepad_plus_Window::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
                     (scn->modificationType &
                         (SC_PERFORMED_USER | SC_PERFORMED_UNDO | SC_PERFORMED_REDO)))
                 {
+                    // Defer the whole-document identifier / fence pass — running
+                    // it synchronously on every keystroke makes typing sluggish
+                    // on large files. Timer fires once typing pauses.
                     if (Buffer* mb = BufferManager::Instance().Get(
                             app_.V(editorView).activeId)) {
-                        if (mb->GetLang() == LangType::Markdown)
-                            StyleMarkdownFences(app_.V(editorView).editor);
-                        else
-                            HighlightFunctionNames(
-                                app_.V(editorView).editor, mb->GetLang());
+                        mb->SetStyleDirty(true);
                     }
+                    ::SetTimer(h, kStyleDebounceTimerId, kStyleDebounceMs, nullptr);
                 }
                 if ((scn->modificationType &
                         (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) &&
@@ -2076,6 +2084,23 @@ void Notepad_plus_Window::ShowHexComparePicker()
     params.cmpHexRight = st.right;
     params.Save();
     HexCompareWindow::Open(hwnd_, hInst_, st.left, st.right);
+}
+
+void Notepad_plus_Window::FlushPendingStyle()
+{
+    Buffer* b = BufferManager::Instance().Get(app_.ActiveBuffer());
+    if (!b || !b->StyleDirty()) return;
+    ScintillaEditView& ed = app_.Editor();
+    // Wrap in WM_SETREDRAW so the thousands of SCI_SETSTYLING calls coalesce
+    // into a single repaint — same pattern ApplyLanguage's heavy path uses.
+    if (ed.Hwnd()) ::SendMessageW(ed.Hwnd(), WM_SETREDRAW, FALSE, 0);
+    if (b->GetLang() == LangType::Markdown) StyleMarkdownFences(ed);
+    else                                    HighlightFunctionNames(ed, b->GetLang());
+    if (ed.Hwnd()) {
+        ::SendMessageW(ed.Hwnd(), WM_SETREDRAW, TRUE, 0);
+        ::InvalidateRect(ed.Hwnd(), nullptr, FALSE);
+    }
+    b->SetStyleDirty(false);
 }
 
 void Notepad_plus_Window::WireTabContextForView(int v)

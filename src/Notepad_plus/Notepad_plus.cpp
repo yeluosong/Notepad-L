@@ -247,6 +247,13 @@ void Notepad_plus::ActivateBuffer(BufferID id)
     V().editor.AttachDocument(b->DocHandle());
     V().activeId = id;
     RefreshEditorForActiveBuffer();
+    // Buffer may have pending post-edit restyle work if the debounce timer
+    // on the frame didn't fire before the user switched away.
+    if (b->StyleDirty()) {
+        if (b->GetLang() == LangType::Markdown) StyleMarkdownFences(V().editor);
+        else                                    HighlightFunctionNames(V().editor, b->GetLang());
+        b->SetStyleDirty(false);
+    }
     RestoreViewState(id);
 
     // Rebind docmap / function list to the newly-active document.

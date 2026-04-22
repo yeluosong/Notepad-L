@@ -70,12 +70,19 @@ bool BufferManager::LoadIntoDoc(Buffer& b, const std::wstring& path, std::wstrin
     const auto* raw = reinterpret_cast<const unsigned char*>(bytes.data());
     size_t size = bytes.size();
     Buffer::Encoding enc = Buffer::Encoding::Utf8;
+    // For UTF-8 (with or without BOM) we hand raw bytes straight to SCI_ADDTEXT
+    // via (textData, textLen) — skipping an intermediate std::string copy that
+    // doubles peak memory on large files. Converted paths (UTF-16 / ANSI) still
+    // need the `utf8` scratch buffer.
     std::string utf8;
+    const char* textData = nullptr;
+    size_t      textLen  = 0;
 
     // BOM-based detection.
     if (size >= 3 && raw[0] == 0xEF && raw[1] == 0xBB && raw[2] == 0xBF) {
         enc = Buffer::Encoding::Utf8Bom;
-        utf8.assign(reinterpret_cast<const char*>(raw + 3), size - 3);
+        textData = reinterpret_cast<const char*>(raw + 3);
+        textLen  = size - 3;
     } else if (size >= 2 && raw[0] == 0xFF && raw[1] == 0xFE) {
         enc = Buffer::Encoding::Utf16LeBom;
         const wchar_t* w = reinterpret_cast<const wchar_t*>(raw + 2);
@@ -83,6 +90,7 @@ bool BufferManager::LoadIntoDoc(Buffer& b, const std::wstring& path, std::wstrin
         int n = ::WideCharToMultiByte(CP_UTF8, 0, w, wlen, nullptr, 0, nullptr, nullptr);
         utf8.resize(static_cast<size_t>(n));
         ::WideCharToMultiByte(CP_UTF8, 0, w, wlen, utf8.data(), n, nullptr, nullptr);
+        textData = utf8.data(); textLen = utf8.size();
     } else if (size >= 2 && raw[0] == 0xFE && raw[1] == 0xFF) {
         enc = Buffer::Encoding::Utf16BeBom;
         std::vector<wchar_t> w((size - 2) / 2);
@@ -94,6 +102,7 @@ bool BufferManager::LoadIntoDoc(Buffer& b, const std::wstring& path, std::wstrin
         utf8.resize(static_cast<size_t>(n));
         ::WideCharToMultiByte(CP_UTF8, 0, w.data(), static_cast<int>(w.size()),
             utf8.data(), n, nullptr, nullptr);
+        textData = utf8.data(); textLen = utf8.size();
     } else {
         // No BOM: try to validate as UTF-8; fall back to ANSI.
         DWORD flags = MB_ERR_INVALID_CHARS;
@@ -102,7 +111,8 @@ bool BufferManager::LoadIntoDoc(Buffer& b, const std::wstring& path, std::wstrin
             nullptr, 0);
         if (wn > 0 || size == 0) {
             enc = Buffer::Encoding::Utf8;
-            utf8.assign(reinterpret_cast<const char*>(raw), size);
+            textData = reinterpret_cast<const char*>(raw);
+            textLen  = size;
         } else {
             enc = Buffer::Encoding::Ansi;
             int wlen = ::MultiByteToWideChar(CP_ACP, 0,
@@ -117,18 +127,19 @@ bool BufferManager::LoadIntoDoc(Buffer& b, const std::wstring& path, std::wstrin
             utf8.resize(static_cast<size_t>(n));
             ::WideCharToMultiByte(CP_UTF8, 0, w.data(), wlen,
                 utf8.data(), n, nullptr, nullptr);
+            textData = utf8.data(); textLen = utf8.size();
         }
     }
 
     // EOL detection (first matching sequence wins).
     Buffer::Eol eol = Buffer::Eol::Crlf;
-    for (size_t i = 0; i + 1 <= utf8.size(); ++i) {
-        if (utf8[i] == '\r') {
-            eol = (i + 1 < utf8.size() && utf8[i+1] == '\n')
+    for (size_t i = 0; i < textLen; ++i) {
+        if (textData[i] == '\r') {
+            eol = (i + 1 < textLen && textData[i+1] == '\n')
                 ? Buffer::Eol::Crlf : Buffer::Eol::Cr;
             break;
         }
-        if (utf8[i] == '\n') { eol = Buffer::Eol::Lf; break; }
+        if (textData[i] == '\n') { eol = Buffer::Eol::Lf; break; }
     }
     b.SetEncoding(enc);
     b.SetEol(eol);
@@ -143,9 +154,9 @@ bool BufferManager::LoadIntoDoc(Buffer& b, const std::wstring& path, std::wstrin
     case Buffer::Eol::Cr:   factory_->Call(SCI_SETEOLMODE, SC_EOL_CR);   break;
     }
     factory_->Call(SCI_SETUNDOCOLLECTION, 0);
-    if (!utf8.empty()) {
-        factory_->Call(SCI_ADDTEXT, static_cast<uptr_t>(utf8.size()),
-            reinterpret_cast<sptr_t>(utf8.data()));
+    if (textLen > 0) {
+        factory_->Call(SCI_ADDTEXT, static_cast<uptr_t>(textLen),
+            reinterpret_cast<sptr_t>(textData));
     }
     factory_->Call(SCI_SETUNDOCOLLECTION, 1);
     factory_->Call(SCI_EMPTYUNDOBUFFER);

@@ -30,6 +30,13 @@ public:
     static constexpr ULONG_PTR kOpenFilesMsgId = 0x4E505046; // 'NPPF'
     static const wchar_t* ClassName();
 
+    // Debounce window for the post-edit whole-buffer restyle (function-name
+    // scan / markdown fence pass). Armed by SCN_MODIFIED on user edits and
+    // consumed in WM_TIMER; running the scan on every keystroke visibly
+    // slows typing on ~80k+ files.
+    static constexpr UINT_PTR kStyleDebounceTimerId = 0x4E505053; // 'NPPS'
+    static constexpr UINT     kStyleDebounceMs      = 200;
+
 private:
     static LRESULT CALLBACK StaticWndProc(HWND, UINT, WPARAM, LPARAM);
     LRESULT WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -46,6 +53,8 @@ private:
     void ShowColumnEditorDialog();
     void ShowTextComparePicker();
     void ShowHexComparePicker();
+    // Run the debounced whole-doc restyle on the active view's dirty buffer.
+    void FlushPendingStyle();
 
     void CreateToolbar();
     void RebuildToolbar();
