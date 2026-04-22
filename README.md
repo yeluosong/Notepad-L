@@ -18,9 +18,25 @@ A lightweight text editor for Windows, built with Win32 + Scintilla + Lexilla.
 
 ![C++ syntax highlighting](img/cpp.png)
 
+**Dark theme**
+
+![Dark theme](img/darkstyle.png)
+
 **Binary / Hex view**
 
 ![Binary hex view](img/binary.png)
+
+**Text compare**
+
+![Text compare](img/txtcompare.png)
+
+**Hex compare**
+
+![Hex compare](img/hexcompare.png)
+
+**Folder compare**
+
+![Folder compare](img/foldercompare.png)
 
 Status: **M1 skeleton** — main frame, single Scintilla view, new/open/save/save-as/close,
 recent files, status bar, accelerators, UTF-8 + CRLF defaults.
