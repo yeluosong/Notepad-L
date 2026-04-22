@@ -763,10 +763,20 @@ static std::map<sptr_t, AppliedState> g_applied;
 
 void ApplyLanguage(ScintillaEditView& v, LangType lang)
 {
+    sptr_t docHandle = v.Call(SCI_GETDOCPOINTER);
+    auto it = g_applied.find(docHandle);
+    bool firstSeen   = (it == g_applied.end());
+    bool langChanged = !firstSeen && it->second.lang != lang;
+
     SelectPalette(Parameters::Instance().Theme());
     ResetStyles(v);
     SetupEmbeddedStyles(v);
-    SetLexerByName(v, LangLexerName(lang));
+    // Only (re)attach a lexer when the language for this doc changes. Calling
+    // SCI_SETILEXER resets Scintilla's endStyled counter and forces a full
+    // re-colourise on every tab switch — which on 80k+ files shows as a
+    // multi-second stall plus repeated repaints.
+    if (firstSeen || langChanged)
+        SetLexerByName(v, LangLexerName(lang));
 
     switch (lang) {
     case LangType::C:
@@ -806,19 +816,37 @@ void ApplyLanguage(ScintillaEditView& v, LangType lang)
 
     // Heavy work — gate on (lang change for this doc) || (doc not fully lex'd).
     // Tab-switch back to a doc with same lang, fully styled: skip entirely.
-    sptr_t docHandle = v.Call(SCI_GETDOCPOINTER);
     sptr_t totalLen  = v.Call(SCI_GETLENGTH);
     sptr_t styledTo  = v.Call(SCI_GETENDSTYLED);
-    auto it = g_applied.find(docHandle);
-    bool firstSeen   = (it == g_applied.end());
-    bool langChanged = !firstSeen && it->second.lang != lang;
     bool unstyled    = (totalLen > 0 && styledTo < totalLen);
     if (firstSeen || langChanged || unstyled) {
+        // Paint the attached document immediately with default styling — then
+        // run colourise + function-name pass. Otherwise the user waits through
+        // the whole heavy path before seeing any text (very visible on large
+        // files opened via drag-drop, where the window is already foreground).
+        if (v.Hwnd()) ::UpdateWindow(v.Hwnd());
+
+        // Coalesce the thousands of SCI_SETSTYLING calls (and the colourise
+        // invalidation) into a single final repaint — without this the paint
+        // queue churns for seconds on big files.
+        // Turn wrap off while we colourise. With wrap on, Scintilla recomputes
+        // wrap positions incrementally on idle/paint — interleaved with our
+        // styling passes this shows up as 3-4s of flicker on big files.
+        sptr_t prevWrap = v.Call(SCI_GETWRAPMODE);
+        if (prevWrap != SC_WRAP_NONE) v.Call(SCI_SETWRAPMODE, SC_WRAP_NONE);
+
+        if (v.Hwnd()) ::SendMessageW(v.Hwnd(), WM_SETREDRAW, FALSE, 0);
         v.Call(SCI_COLOURISE, 0, -1);
         if (lang == LangType::Markdown)
             StyleMarkdownFences(v);
         else
             HighlightFunctionNames(v, lang);
+        if (v.Hwnd()) {
+            ::SendMessageW(v.Hwnd(), WM_SETREDRAW, TRUE, 0);
+            ::InvalidateRect(v.Hwnd(), nullptr, FALSE);
+        }
+
+        if (prevWrap != SC_WRAP_NONE) v.Call(SCI_SETWRAPMODE, prevWrap);
         g_applied[docHandle] = AppliedState{lang};
     }
 }
@@ -855,8 +883,12 @@ void HighlightFunctionNames(ScintillaEditView& v, LangType lang)
     // One bulk fetch of interleaved (char, style) bytes — much faster than
     // SCI_GETSTYLEAT per identifier on big files.
     std::string styled(2 * static_cast<size_t>(len) + 2, '\0');
+    // SCI_GETSTYLEDTEXTFULL pairs with Sci_TextRangeFull (64-bit positions).
+    // The non-FULL variant takes Sci_TextRange (32-bit positions) — feeding it
+    // the Full struct misaligns lpstrText and crashes when Scintilla writes the
+    // trailing NUL to a bogus address.
     Sci_TextRangeFull tr{{0, static_cast<Sci_Position>(len)}, styled.data()};
-    v.Call(SCI_GETSTYLEDTEXT, 0, reinterpret_cast<sptr_t>(&tr));
+    v.Call(SCI_GETSTYLEDTEXTFULL, 0, reinterpret_cast<sptr_t>(&tr));
 
     auto ch    = [&](size_t k) { return static_cast<unsigned char>(styled[2*k]); };
     auto stAt  = [&](size_t k) { return static_cast<unsigned char>(styled[2*k+1]); };

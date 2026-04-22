@@ -229,8 +229,10 @@ void Notepad_plus::RestoreViewState(BufferID id)
     Buffer* b = BufferManager::Instance().Get(id);
     if (!b) return;
     const auto& v = b->View();
-    V().editor.Call(SCI_SETFIRSTVISIBLELINE, static_cast<uptr_t>(v.firstVisibleLine));
+    // Selection first — SCI_SETSEL scrolls the caret into view, so setting it
+    // after the scroll position would clobber our restored topLine/xOffset.
     V().editor.Call(SCI_SETSEL,              static_cast<uptr_t>(v.anchorPos), v.caretPos);
+    V().editor.Call(SCI_SETFIRSTVISIBLELINE, static_cast<uptr_t>(v.firstVisibleLine));
     V().editor.Call(SCI_SETXOFFSET,          static_cast<uptr_t>(v.xOffset));
 }
 

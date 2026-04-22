@@ -1485,12 +1485,16 @@ LRESULT Notepad_plus_Window::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
                     b->SetDirty(false);
                     app_.Tabs().SetLabel(b->Id(), b->DisplayName(), false);
                 }
+                app_.UpdateTitle(h);
+                app_.UpdateStatusBar(statusBar_);
                 break;
             case SCN_SAVEPOINTLEFT:
                 if (Buffer* b = BufferManager::Instance().Get(app_.ActiveBuffer())) {
                     b->SetDirty(true);
                     app_.Tabs().SetLabel(b->Id(), b->DisplayName(), true);
                 }
+                app_.UpdateTitle(h);
+                app_.UpdateStatusBar(statusBar_);
                 break;
             case SCN_MARGINCLICK:
                 if (scn->margin == 1) {
@@ -1507,6 +1511,10 @@ LRESULT Notepad_plus_Window::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
                 }
                 break;
             case SCN_UPDATEUI:
+                if (scn->updated &
+                    (SC_UPDATE_SELECTION | SC_UPDATE_CONTENT | SC_UPDATE_V_SCROLL)) {
+                    app_.UpdateStatusBar(statusBar_);
+                }
                 if (app_.Dock().IsShown(DockSide::Right) &&
                     app_.Dock().Panel(DockSide::Right) == &app_.DocMapPane()) {
                     app_.RefreshDocMapViewport();
@@ -1587,11 +1595,11 @@ LRESULT Notepad_plus_Window::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
                         while (s < end && (*s == '\n' || *s == '\r')) ++s;
                     }
                     RebuildRecentMenu();
+                    app_.UpdateTitle(h);
+                    app_.UpdateStatusBar(statusBar_);
                 }
                 break;
             }
-            app_.UpdateTitle(h);
-            app_.UpdateStatusBar(statusBar_);
             return 0;
         }
         // Panels (find results list / trees).
